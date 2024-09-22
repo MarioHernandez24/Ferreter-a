@@ -6,16 +6,16 @@ namespace SistemsFerreDeSur.Server.Models
     public partial class Producto
     {
         public int IdProducto { get; set; }
-        public string NombreProducto { get; set; } = null!;
-        public int Cantidad { get; set; }
-        public decimal PrecioCompra { get; set; }
-        public decimal PrecioVenta { get; set; }
-        public string Caracteristicas { get; set; } = null!;
-        public bool Estado { get; set; } // true para Activo, false para Inactivo
-        public string Detalle { get; set; } = null!;
-        public int IdUnidad { get; set; }
-        public int IdCategoria { get; set; }
-        public int Existencia { get; set; }
+        public string? NombreProducto { get; set; }
+        public int? Cantidad { get; set; }
+        public decimal? PrecioCompra { get; set; }
+        public decimal? PrecioVenta { get; set; }
+        public string? Caracteristicas { get; set; }
+        public bool Estado { get; set; }
+        public string? Detalle { get; set; }
+        public int? IdUnidad { get; set; }
+        public int? IdCategoria { get; set; }
+        public int? Existencia { get; set; }
 
         // Navegación a otras entidades
         public virtual Categoria IdCategoriaNavigation { get; set; } = null!;

@@ -10,6 +10,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
 builder.Services.AddDbContext<FerreteriaDContext>(opciones =>
 {
     opciones.UseSqlServer(builder.Configuration.GetConnectionString("cadenaSQL"));

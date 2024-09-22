@@ -147,6 +147,9 @@
 
             unidades = listaUnidades.ToDictionary(u => u.IdUnidad, u => u.NombreUnidad);
             categorias = listaCategorias.ToDictionary(c => c.IdCategoria, c => c.NombreCategoria);
+
+            int i= 1;
+            StateHasChanged();
         }
         catch (Exception ex)
         {

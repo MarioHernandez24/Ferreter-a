@@ -22,13 +22,20 @@ namespace SistemsFerreDeSur.Client.Services
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>("api/producto/lista");
+                var result = await _httpClient.GetFromJsonAsync<ResponseAPI<List<ProductoDTO>>>("api/producto/lista");
+
+                if (result?.EsCorrecto == true)
+                {
+                    return result.Valor ?? new List<ProductoDTO>(); // Manejo de posibles valores nulos
+                }
+                else
+                {
+                    throw new Exception(result?.Mensaje ?? "Error desconocido");
+                }
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex)
             {
-                // Manejar excepción y registrar error
-                // Aquí podrías loggear el error o mostrar un mensaje de usuario
-                throw new Exception("Error al obtener la lista de productos.", ex);
+                throw new Exception($"Error al obtener la lista de productos: {ex.Message}", ex);
             }
         }
 
@@ -39,7 +46,10 @@ namespace SistemsFerreDeSur.Client.Services
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<ProductoDTO>($"api/producto/buscar/{id}");
+                var product= await _httpClient.GetFromJsonAsync<ProductoDTO>($"api/Producto/Buscar/{id}");
+
+                int i = 0;
+                return product;
             }
             catch (HttpRequestException ex)
             {
@@ -56,7 +66,7 @@ namespace SistemsFerreDeSur.Client.Services
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("api/producto/guardar", producto);
+                var response = await _httpClient.PostAsJsonAsync("api/Producto/Guardar", producto);
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<int>();
@@ -83,7 +93,7 @@ namespace SistemsFerreDeSur.Client.Services
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync($"api/producto/editar/{producto.IdProducto}", producto);
+                var response = await _httpClient.PutAsJsonAsync($"api/Producto/Editar/{producto.IdProducto}", producto);
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<int>();
@@ -110,7 +120,7 @@ namespace SistemsFerreDeSur.Client.Services
         {
             try
             {
-                var response = await _httpClient.DeleteAsync($"api/producto/eliminar/{id}");
+                var response = await _httpClient.DeleteAsync($"api/Producto/Eliminar/{id}");
                 return response.IsSuccessStatusCode;
             }
             catch (HttpRequestException ex)
