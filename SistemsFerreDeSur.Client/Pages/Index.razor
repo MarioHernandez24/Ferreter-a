@@ -1,0 +1,143 @@
+﻿@page "/"
+
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Página Principal</PageTitle>
+
+<!-- CSS Integrado -->
+<style>
+    body {
+        background-color: #FFFFFF; /* Gris claro de fondo para una apariencia limpia */
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    .img-small {
+        max-width: 80px; /* Tamaño máximo ajustado para las imágenes en las tarjetas */
+        height: auto; /* Mantiene la proporción original */
+        object-fit: contain; /* Asegura que la imagen se ajuste dentro del contenedor sin distorsión */
+        padding: 5px; /* Espacio alrededor de la imagen */
+        margin: 0 auto; /* Centra la imagen horizontalmente */
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333; /* Texto oscuro para buen contraste */
+    }
+
+    .card-text {
+        font-size: 1.25rem;
+        color: #555; /* Texto ligeramente más claro */
+    }
+
+    /* Estilos para los bordes de colores */
+    .card-border {
+        border: 3px solid #6f42c1; /* Morado */
+        border-radius: 10px;
+    }
+
+    /* Estilos para el contenido principal */
+    .main-content {
+        background-color: #ffffff; /* Fondo blanco para las tarjetas */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Estilos adicionales para el encabezado y pie de página */
+    .header {
+        background-color: #003366; /* Azul oscuro */
+        color: #ffffff; /* Texto blanco */
+        padding: 20px;
+        text-align: center;
+    }
+
+    .footer {
+        background-color: #003366; /* Azul oscuro */
+        color: #ffffff; /* Texto blanco */
+        padding: 10px 0;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .container {
+        max-width: 1200px; /* Limitar el ancho máximo para una mejor visualización */
+        margin: 0 auto;
+    }
+
+    .card-body img {
+        max-width: 60px; /* Tamaño de imagen ajustado en tarjetas para mantener la coherencia */
+    }
+</style>
+
+<!-- Aquí agregamos el logo -->
+<div class="text-center my-3">
+    <img src="images/logo.png" alt="Logo de la Ferretería" class="img-fluid" style="max-width: 300px; height: auto;" />
+</div>
+
+<!-- Encabezado Principal -->
+<div class="header">
+    <h1>¡Bienvenido(a) al Sistema de Control de Inventario y Facturación de Ferretería del Sur!</h1>
+</div>
+
+<!-- Contenido Principal -->
+<div class="container mt-4">
+    <div class="main-content">
+        <div class="row justify-content-center">
+            <!-- Tarjeta 1: Ventas del Día -->
+            <div class="col-md-3">
+                <div class="card mb-4 shadow-sm bg-white rounded card-border">
+                    <div class="card-body text-center">
+                        <img src="images/VentayR.png" alt="Icono Ventas" class="img-small" />
+                        <h5 class="card-title">Ventas del Día</h5>
+                        <p class="card-text">C$10,000</p>
+                        <p class="card-text">Ventas totales realizadas hoy.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2: Compras del Día -->
+            <div class="col-md-3">
+                <div class="card mb-4 shadow-sm bg-white rounded card-border">
+                    <div class="card-body text-center">
+                        <img src="images/inventario.png" alt="Icono Compras" class="img-small" />
+                        <h5 class="card-title">Compras del Día</h5>
+                        <p class="card-text">C$7,500</p>
+                        <p class="card-text">Compras totales realizadas hoy.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 3: Productos por Agotarse -->
+            <div class="col-md-3">
+                <div class="card mb-4 shadow-sm bg-white rounded card-border">
+                    <div class="card-body text-center">
+                        <img src="images/inventario.png" alt="Icono Productos" class="img-small" />
+                        <h5 class="card-title">Productos por Agotarse</h5>
+                        <p class="card-text">5 productos</p>
+                        <p class="card-text">Productos con bajo inventario.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 4: Pagos Pendientes -->
+            <div class="col-md-3">
+                <div class="card mb-4 shadow-sm bg-white rounded card-border">
+                    <div class="card-body text-center">
+                        <img src="images/catalogo.png" alt="Icono Pagos" class="img-small" />
+                        <h5 class="card-title">Pagos Pendientes</h5>
+                        <p class="card-text">C$2,000</p>
+                        <p class="card-text">Pagos pendientes a proveedores.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pie de Página -->
+<div class="footer">
+    <p>© 2024 Ferretería del Sur. Todos los derechos reservados.</p>
+</div>

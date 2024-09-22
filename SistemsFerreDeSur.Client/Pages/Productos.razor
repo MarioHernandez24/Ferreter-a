@@ -1,0 +1,185 @@
+﻿@page "/productos"
+
+@using SistemsFerreDeSur.Shared;
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using SistemsFerreDeSur.Client.Services;
+
+@inject SweetAlertService swal;
+@inject IProductoService productoService;
+@inject IUnidadMedidaService unidadService;
+@inject ICategoriaService categoriaService;
+
+<style>
+    .card {
+        border: 2px solid #68217A; /* Color morado similar al predeterminado */
+        border-radius: 8px; /* Bordes redondeados */
+        margin-top: 20px;
+    }
+
+    .card-header {
+        background-color: #68217A; /* Fondo morado para el encabezado */
+        color: white; /* Texto blanco en el encabezado */
+        padding: 10px;
+        border-bottom: 2px solid #4b154a; /* Bordes morados más oscuros */
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .form-label {
+        font-weight: bold; /* Opcional: resaltar las etiquetas */
+    }
+
+    .form-control, .form-select {
+        border-color: #68217A; /* Bordes morados para inputs y selects */
+    }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(104, 33, 122, 0.25); /* Sombra morada para el foco */
+            border-color: #68217A;
+        }
+
+    .btn-primary {
+        background-color: #68217A; /* Color de fondo morado para el botón */
+        border-color: #68217A; /* Borde morado para el botón */
+    }
+
+        .btn-primary:hover {
+            background-color: #4b154a; /* Color morado más oscuro al pasar el cursor */
+            border-color: #4b154a;
+        }
+
+    .btn-warning {
+        background-color: #f0ad4e; /* Color de fondo para el botón de advertencia */
+        border-color: #f0ad4e; /* Borde para el botón de advertencia */
+    }
+
+        .btn-warning:hover {
+            background-color: #ec971f; /* Color más oscuro al pasar el cursor */
+            border-color: #ec971f;
+        }
+
+    .alert {
+        margin-top: 20px;
+    }
+</style>
+
+<h1>Productos</h1>
+
+<div class="card mt-4">
+    <div class="card-header">
+        Lista de Productos
+    </div>
+    <div class="card-body">
+        <a class="btn btn-success btn-sm mb-3" href="producto">Nuevo Producto</a>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Compra</th>
+                    <th>Precio Venta</th>
+                    <th>Existencia</th>
+                    <th>Características</th>
+                    <th>Detalle</th>
+                    <th>Estado</th>
+                    <th>Unidad</th>
+                    <th>Categoría</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (listaProductos == null)
+                {
+                    <tr>
+                        <td colspan="11" align="center">
+                            <img style="width:50px" src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" />
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in listaProductos)
+                    {
+                        <tr>
+                            <td>@item.NombreProducto</td>
+                            <td>@item.Cantidad</td>
+                            <td>@item.PrecioCompra.ToString("C")</td>
+                            <td>@item.PrecioVenta.ToString("C")</td>
+                            <td>@item.Existencia</td>
+                            <td>@item.Caracteristicas</td>
+                            <td>@item.Detalle</td>
+                            <td>@item.Estado</td>
+
+                            <td>@GetUnidadNombre(item.IdUnidad)</td>
+                            <td>@GetCategoriaNombre(item.IdCategoria)</td>
+                            <td>
+                                <a class="btn btn-primary btn-sm" href="producto/@item.IdProducto">
+                                    <i class="oi oi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-danger btn-sm ms-2" @onclick="(() => Eliminar(item.IdProducto))">
+                                    <i class="oi oi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    List<ProductoDTO>? listaProductos = null;
+    private Dictionary<int, string> unidades = new Dictionary<int, string>();
+    private Dictionary<int, string> categorias = new Dictionary<int, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            listaProductos = await productoService.Lista();
+
+            var listaUnidades = await unidadService.Lista();
+            var listaCategorias = await categoriaService.Lista();
+
+            unidades = listaUnidades.ToDictionary(u => u.IdUnidad, u => u.NombreUnidad);
+            categorias = listaCategorias.ToDictionary(c => c.IdCategoria, c => c.NombreCategoria);
+        }
+        catch (Exception ex)
+        {
+            // Manejar el error (mostrar mensaje, log, etc.)
+        }
+    }
+
+    private string GetUnidadNombre(int idUnidad)
+    {
+        return unidades.TryGetValue(idUnidad, out var nombre) ? nombre : "Desconocido";
+    }
+
+    private string GetCategoriaNombre(int idCategoria)
+    {
+        return categorias.TryGetValue(idCategoria, out var nombre) ? nombre : "Desconocido";
+    }
+
+    private async Task Eliminar(int id)
+    {
+        var resultado = await swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Eliminar Producto",
+                Text = "¿Desea eliminar este producto?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            var eliminado = await productoService.Eliminar(id);
+
+            if (eliminado)
+                listaProductos = listaProductos!.FindAll(e => e.IdProducto != id);
+        }
+    }
+}

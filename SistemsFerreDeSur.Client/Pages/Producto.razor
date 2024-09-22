@@ -1,0 +1,227 @@
+﻿@page "/producto"
+@page "/producto/{idProducto:int}"
+
+@using SistemsFerreDeSur.Shared;
+@using SistemsFerreDeSur.Client.Services;
+
+@inject IProductoService productoService;
+@inject IUnidadMedidaService unidadService;
+@inject ICategoriaService categoriaService;
+@inject NavigationManager navegacion;
+
+<PageTitle>@titulo</PageTitle>
+
+<style>
+    .card {
+        border: 2px solid #68217A; /* Color morado similar al predeterminado */
+        border-radius: 8px; /* Bordes redondeados */
+        margin-top: 20px;
+    }
+
+    .card-header {
+        background-color: #68217A; /* Fondo morado para el encabezado */
+        color: white; /* Texto blanco en el encabezado */
+        padding: 10px;
+        border-bottom: 2px solid #4b154a; /* Bordes morados más oscuros */
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .form-label {
+        font-weight: bold; /* Opcional: resaltar las etiquetas */
+    }
+
+    .form-control, .form-select {
+        border-color: #68217A; /* Bordes morados para inputs y selects */
+    }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(104, 33, 122, 0.25); /* Sombra morada para el foco */
+            border-color: #68217A;
+        }
+
+    .btn-primary {
+        background-color: #68217A; /* Color de fondo morado para el botón */
+        border-color: #68217A; /* Borde morado para el botón */
+    }
+
+        .btn-primary:hover {
+            background-color: #4b154a; /* Color morado más oscuro al pasar el cursor */
+            border-color: #4b154a;
+        }
+
+    .btn-warning {
+        background-color: #f0ad4e; /* Color de fondo para el botón de advertencia */
+        border-color: #f0ad4e; /* Borde para el botón de advertencia */
+    }
+
+        .btn-warning:hover {
+            background-color: #ec971f; /* Color más oscuro al pasar el cursor */
+            border-color: #ec971f;
+        }
+
+    .alert {
+        margin-top: 20px;
+    }
+</style>
+<div class="card mt-4">
+    <div class="card-header">
+        @titulo
+    </div>
+    <div class="card-body">
+        <EditForm Model="producto" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+
+            <div class="mb-3">
+                <label class="form-label">Nombre Producto</label>
+                <InputText class="form-control" @bind-Value="producto.NombreProducto"></InputText>
+                <ValidationMessage For="@(() => producto.NombreProducto)"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Cantidad</label>
+                <InputNumber class="form-control" @bind-Value="producto.Cantidad"></InputNumber>
+                <ValidationMessage For="@(() => producto.Cantidad)"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Precio Compra</label>
+                <InputNumber class="form-control" @bind-Value="producto.PrecioCompra" step="0.01"></InputNumber>
+                <ValidationMessage For="@(() => producto.PrecioCompra)"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Precio Venta</label>
+                <InputNumber class="form-control" @bind-Value="producto.PrecioVenta" step="0.01"></InputNumber>
+                <ValidationMessage For="@(() => producto.PrecioVenta)"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Existencia</label>
+                <InputNumber class="form-control" @bind-Value="producto.Existencia"></InputNumber>
+                <ValidationMessage For="@(() => producto.Existencia)"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Características</label>
+                <InputTextArea class="form-control" @bind-Value="producto.Caracteristicas"></InputTextArea>
+                <ValidationMessage For="@(() => producto.Caracteristicas)"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Detalle</label>
+                <InputTextArea class="form-control" @bind-Value="producto.Detalle"></InputTextArea>
+                <ValidationMessage For="@(() => producto.Detalle)"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Estado</label>
+                <InputCheckbox class="form-check-input" @bind-Value="producto.Estado"></InputCheckbox>
+                <ValidationMessage For="@(() => producto.Estado)"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Unidad de Medida</label>
+                <select class="form-select" @bind="producto.IdUnidad">
+                    <option value="">Seleccione una unidad</option>
+                    @foreach (var unidad in listaUnidades)
+                    {
+                        <option value="@unidad.IdUnidad">
+                            @unidad.NombreUnidad
+                        </option>
+                    }
+                </select>
+                <ValidationMessage For="@(() => producto.IdUnidad)"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Categoría</label>
+                <select class="form-select" @bind="producto.IdCategoria">
+                    <option value="">Seleccione una categoría</option>
+                    @foreach (var categoria in listaCategorias)
+                    {
+                        <option value="@categoria.IdCategoria">
+                            @categoria.NombreCategoria
+                        </option>
+                    }
+                </select>
+                <ValidationMessage For="@(() => producto.IdCategoria)"></ValidationMessage>
+            </div>
+
+            <button class="btn btn-primary" type="submit">
+                @btnTexto
+            </button>
+
+            <button class="btn btn-warning" type="button" @onclick="Volver">
+                Volver
+            </button>
+
+            @if (!string.IsNullOrEmpty(mensaje))
+            {
+                <div class="alert alert-success" role="alert">
+                    @mensaje
+                </div>
+            }
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int idProducto { get; set; } = 0;
+
+    string titulo = string.Empty;
+    string btnTexto = string.Empty;
+    string mensaje = string.Empty;
+
+    ProductoDTO producto = new ProductoDTO();
+    List<UnidadMedidaDTO> listaUnidades = new List<UnidadMedidaDTO>();
+    List<CategoriaDTO> listaCategorias = new List<CategoriaDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        listaUnidades = await unidadService.Lista();
+        listaCategorias = await categoriaService.Lista();
+
+        if (idProducto != 0)
+        {
+            producto = await productoService.Buscar(idProducto);
+            btnTexto = "Actualizar Producto";
+            titulo = "Editar Producto";
+        }
+        else
+        {
+            producto = new ProductoDTO
+                {
+                    NombreProducto = "",
+                    Cantidad = 0,
+                    PrecioCompra = 0,
+                    PrecioVenta = 0,
+                    Existencia = 0,
+                    Caracteristicas = "",
+                    Detalle = "",
+                    Estado = false
+                };
+            btnTexto = "Guardar Producto";
+            titulo = "Nuevo Producto";
+        }
+    }
+
+    private async Task OnValidSubmit()
+    {
+        int idDevuelto = 0;
+        if (idProducto == 0)
+        {
+            idDevuelto = await productoService.Guardar(producto);
+            mensaje = "Producto guardado exitosamente.";
+        }
+        else
+        {
+            idDevuelto = await productoService.Editar(producto);
+            mensaje = "Producto actualizado exitosamente.";
+        }
+
+        if (idDevuelto != 0)
+        {
+            navegacion.NavigateTo("/productos");
+        }
+    }
+
+    private void Volver()
+    {
+        navegacion.NavigateTo("/productos");
+    }
+}

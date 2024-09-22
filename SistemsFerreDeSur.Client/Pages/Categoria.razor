@@ -1,0 +1,160 @@
+﻿@page "/categoria"
+@page "/categoria/{idCategoriaEditar:int}"
+
+@using SistemsFerreDeSur.Shared;
+@using SistemsFerreDeSur.Client.Services;
+
+@inject ICategoriaService categoriaService;
+@inject NavigationManager navegacion;
+
+<PageTitle>@titulo</PageTitle>
+
+<style>
+    .card {
+        border: 2px solid #68217A; /* Color morado similar al predeterminado */
+        border-radius: 8px; /* Bordes redondeados */
+        margin-top: 20px;
+    }
+
+    .card-header {
+        background-color: #68217A; /* Fondo morado para el encabezado */
+        color: white; /* Texto blanco en el encabezado */
+        padding: 10px;
+        border-bottom: 2px solid #4b154a; /* Bordes morados más oscuros */
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .form-label {
+        font-weight: bold; /* Opcional: resaltar las etiquetas */
+    }
+
+    .form-control, .form-select {
+        border-color: #68217A; /* Bordes morados para inputs y selects */
+    }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(104, 33, 122, 0.25); /* Sombra morada para el foco */
+            border-color: #68217A;
+        }
+
+    .btn-primary {
+        background-color: #68217A; /* Color de fondo morado para el botón */
+        border-color: #68217A; /* Borde morado para el botón */
+    }
+
+        .btn-primary:hover {
+            background-color: #4b154a; /* Color morado más oscuro al pasar el cursor */
+            border-color: #4b154a;
+        }
+
+    .btn-warning {
+        background-color: #f0ad4e; /* Color de fondo para el botón de advertencia */
+        border-color: #f0ad4e; /* Borde para el botón de advertencia */
+    }
+
+        .btn-warning:hover {
+            background-color: #ec971f; /* Color más oscuro al pasar el cursor */
+            border-color: #ec971f;
+        }
+
+    .alert {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="card mt-4">
+    <div class="card-header">
+        @titulo
+    </div>
+    <div class="card-body">
+        <EditForm Model="categoria" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+
+            <div class="mb-3">
+                <label class="form-label">Nombre Categoría</label>
+                <InputText class="form-control" @bind-Value="categoria.NombreCategoria"></InputText>
+                <ValidationMessage For="@(() => categoria.NombreCategoria)"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Estado</label>
+                <InputCheckbox class="form-check-input" @bind-Value="categoria.Estado"></InputCheckbox>
+                <ValidationMessage For="@(() => categoria.Estado)"></ValidationMessage>
+            </div>
+
+            <button class="btn btn-primary" type="submit">
+                @btnTexto
+            </button>
+
+            <button class="btn btn-warning" type="button" @onclick="Volver">
+                Volver
+            </button>
+
+            @if (!string.IsNullOrEmpty(mensaje))
+            {
+                <div class="alert alert-success" role="alert">
+                    @mensaje
+                </div>
+            }
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int idCategoriaEditar { get; set; } = 0;
+
+    string titulo = string.Empty;
+    string btnTexto = string.Empty;
+    string mensaje = string.Empty; // Variable para el mensaje de éxito o error
+
+    CategoriaDTO categoria = new CategoriaDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (idCategoriaEditar != 0)
+        {
+            categoria = await categoriaService.Buscar(idCategoriaEditar);
+            btnTexto = "Actualizar Categoría";
+            titulo = "Editar Categoría";
+        }
+        else
+        {
+            categoria = new CategoriaDTO
+                {
+                    NombreCategoria = "",
+                    Estado = false // Inicializa como false para el nuevo objeto
+                };
+            btnTexto = "Guardar Categoría";
+            titulo = "Nueva Categoría";
+        }
+    }
+
+    private async Task OnValidSubmit()
+    {
+        int idDevuelto = 0;
+        if (idCategoriaEditar == 0)
+        {
+            idDevuelto = await categoriaService.Guardar(categoria);
+            mensaje = "Categoría guardada exitosamente.";
+        }
+        else
+        {
+            idDevuelto = await categoriaService.Editar(categoria);
+            mensaje = "Categoría actualizada exitosamente.";
+        }
+
+        if (idDevuelto != 0)
+        {
+            // Muestra el mensaje y actualiza la lista en la vista principal
+            navegacion.NavigateTo("/categorias");  // Redirige a la lista de categorías
+        }
+    }
+
+    private void Volver()
+    {
+        navegacion.NavigateTo("/categorias");  // Redirige a la vista principal
+    }
+}

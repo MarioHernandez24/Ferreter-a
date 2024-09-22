@@ -1,0 +1,129 @@
+﻿@page "/unidadesmedida"
+
+@using SistemsFerreDeSur.Shared;
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using SistemsFerreDeSur.Client.Services;
+
+@inject SweetAlertService swal;
+@inject IUnidadMedidaService unidadMedidaService;
+
+<PageTitle>Unidades de Medida</PageTitle>
+
+<style>
+    .table {
+        border: 1px solid #68217A; /* Borde morado para la tabla */
+    }
+
+        .table thead {
+            background-color: #68217A; /* Fondo morado para el encabezado de la tabla */
+            color: white; /* Texto blanco en el encabezado */
+        }
+
+        .table th, .table td {
+            padding: 10px; /* Espaciado en celdas */
+        }
+
+    .btn-success {
+        background-color: #004085; /* Azul oscuro para el botón "Nueva Unidad de Medida" */
+        border-color: #004085; /* Borde azul oscuro para el botón */
+    }
+
+        .btn-success:hover {
+            background-color: #002752; /* Azul más oscuro al pasar el cursor */
+            border-color: #001f3f;
+        }
+
+    .btn-primary {
+        background-color: #004085; /* Azul oscuro para el botón de editar */
+        border-color: #004085; /* Borde azul oscuro para el botón */
+    }
+
+        .btn-primary:hover {
+            background-color: #002752; /* Azul más oscuro al pasar el cursor */
+            border-color: #001f3f;
+        }
+
+    .btn-danger {
+        background-color: #dc3545; /* Color rojo para el botón de eliminar */
+        border-color: #dc3545; /* Borde rojo para el botón */
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333; /* Rojo más oscuro al pasar el cursor */
+            border-color: #bd2130;
+        }
+</style>
+
+<h3>Unidades de Medida</h3>
+
+<a class="btn btn-success btn-sm mb-3" href="unidadmedida">Nueva Unidad de Medida</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nombre Unidad</th>
+            <th>Símbolo</th>
+            <th>Descripción</th>
+            <th>Tipo Unidad</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (listaUnidadMedida == null)
+        {
+            <tr>
+                <td colspan="5" align="center">
+                    <img style="width:50px" src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" alt="Cargando" />
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in listaUnidadMedida)
+            {
+                <tr>
+                    <td>@item.NombreUnidad</td>
+                    <td>@item.Simbolo</td>
+                    <td>@item.Descripcion</td>
+                    <td>@item.TipoUnidad</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="unidadmedida/@item.IdUnidad">
+                            <i class="oi oi-pencil"></i> Editar
+                        </a>
+                        <button type="button" class="btn btn-danger btn-sm ms-2" @onclick="(() => Eliminar(item.IdUnidad))">
+                            <i class="oi oi-trash"></i> Eliminar
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    List<UnidadMedidaDTO>? listaUnidadMedida = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        listaUnidadMedida = await unidadMedidaService.Lista();
+    }
+
+    private async Task Eliminar(int id)
+    {
+        var resultado = await swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Eliminar Unidad de Medida",
+                Text = "¿Desea eliminar esta unidad de medida?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            var eliminado = await unidadMedidaService.Eliminar(id);
+
+            if (eliminado)
+                listaUnidadMedida = listaUnidadMedida!.FindAll(e => e.IdUnidad != id);
+        }
+    }
+}

@@ -1,0 +1,164 @@
+﻿@page "/categorias"
+
+@using SistemsFerreDeSur.Shared;
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using SistemsFerreDeSur.Client.Services;
+
+@inject SweetAlertService swal;
+@inject ICategoriaService categoriaService;
+
+<style>
+    .card {
+        border: 2px solid #68217A; /* Color morado similar al predeterminado de Blazor */
+        border-radius: 8px; /* Bordes redondeados */
+        margin-top: 20px;
+    }
+
+    .card-header {
+        background-color: #68217A; /* Fondo morado para el encabezado de la tarjeta */
+        color: white; /* Texto blanco en el encabezado */
+        padding: 10px;
+        border-bottom: 2px solid #4b154a; /* Bordes morados más oscuros para separar el encabezado del cuerpo */
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .form-label {
+        font-weight: bold; /* Resaltar las etiquetas */
+    }
+
+    .form-control, .form-select {
+        border-color: #68217A; /* Bordes morados para inputs y selects */
+    }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(104, 33, 122, 0.25); /* Sombra morada para el foco */
+            border-color: #68217A;
+        }
+
+    .btn-primary {
+        background-color: #68217A; /* Color de fondo morado para el botón */
+        border-color: #68217A; /* Borde morado para el botón */
+    }
+
+        .btn-primary:hover {
+            background-color: #4b154a; /* Color morado más oscuro al pasar el cursor */
+            border-color: #4b154a;
+        }
+
+    .btn-success {
+        background-color: #28a745; /* Botón verde de Bootstrap */
+        border-color: #28a745;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+    .btn-danger {
+        background-color: #dc3545; /* Botón rojo de Bootstrap */
+        border-color: #dc3545;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+    .table {
+        margin-top: 20px;
+    }
+
+        .table thead {
+            background-color: #68217A; /* Fondo morado para el encabezado de la tabla */
+            color: white; /* Texto blanco en el encabezado de la tabla */
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f4f4f4; /* Color de fondo alternado para filas pares */
+        }
+
+        .table tbody tr:hover {
+            background-color: #e2d5f7; /* Color de fondo al pasar el cursor sobre las filas */
+        }
+</style>
+
+<h1>Categorías</h1>
+
+<div class="card mt-4">
+    <div class="card-header">
+        Lista de Categorías
+    </div>
+    <div class="card-body">
+        <a class="btn btn-success btn-sm mb-3" href="categoria">Nueva Categoría</a>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre Categoría</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (listaCategorias == null)
+                {
+                    <tr>
+                        <td colspan="3" align="center">
+                            <img style="width:50px" src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" />
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in listaCategorias)
+                    {
+                        <tr>
+                            <td>@item.NombreCategoria</td>
+                            <td>@item.Estado</td>
+                            <td>
+                                <a class="btn btn-primary btn-sm" href="categoria/@item.IdCategoria">
+                                    <i class="oi oi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-danger btn-sm ms-2" @onclick="(() => Eliminar(item.IdCategoria))">
+                                    <i class="oi oi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    List<CategoriaDTO>? listaCategorias = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        listaCategorias = await categoriaService.Lista();
+    }
+
+    private async Task Eliminar(int id)
+    {
+        var resultado = await swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Eliminar Categoría",
+                Text = "¿Desea eliminar esta categoría?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            var eliminado = await categoriaService.Eliminar(id);
+
+            if (eliminado)
+                listaCategorias = listaCategorias!.FindAll(e => e.IdCategoria != id);
+        }
+    }
+}
